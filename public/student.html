@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - EduBeacon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto py-8">
+    <div class="flex justify-end mb-4">
+      <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+    </div>
+    <h1 class="text-2xl font-bold mb-4">Student Dashboard</h1>
+    <div class="bg-blue-100 p-6 rounded-lg shadow-md mb-4">
+      <p class="text-lg font-medium text-blue-800">Attendance</p>
+      <p id="attendance-value" class="text-4xl font-bold text-blue-600 mt-2">68%</p>
+      <div id="attendance-warning" class="text-red-600 mt-2">Shortage warning: Attendance below 75%</div>
+      <div id="attendance-alert" class="text-yellow-600 mt-2">Attend 2 classes to avoid shortage.</div>
+    </div>
+    <div class="bg-green-100 p-6 rounded-lg shadow-md mb-4">
+      <p class="text-lg font-medium text-green-800">Personalized Next Steps</p>
+      <ul class="mt-2 space-y-2 text-gray-600 list-disc list-inside">
+        <li>Attend at least 2 more classes this week to maintain attendance.</li>
+        <li>Review lecture notes before the next class.</li>
+        <li>Utilize the chatbot for any doubts or questions you have.</li>
+      </ul>
+    </div>
+    <div class="bg-gray-100 p-6 rounded-lg shadow-md mb-4">
+      <h2 class="text-xl font-bold text-gray-800">Weekly Mental Health Survey</h2>
+      <form id="survey-form" class="space-y-4">
+        <label class="block">How stressed do you feel this week?
+          <select class="w-full px-3 py-2 border rounded" required>
+            <option value="">Select</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded">Submit</button>
+      </form>
+    </div>
+  </div>
+  <script type="module">
+    import { auth } from './firebase-config.js';
+    import { signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
