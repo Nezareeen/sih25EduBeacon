@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parent Dashboard - EduBeacon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto py-8">
+    <div class="flex justify-end mb-4">
+      <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+    </div>
+    <h1 class="text-2xl font-bold mb-4">Parent Dashboard</h1>
+    <div class="bg-blue-100 p-6 rounded-lg shadow-md mb-4">
+      <h2 class="text-xl font-bold mb-2">Child's Attendance</h2>
+      <p>Attendance: 68%</p>
+      <div class="text-red-600 mt-2">Shortage warning: Attendance below 75%</div>
+      <div class="text-yellow-600 mt-2">Attend 2 classes to avoid shortage.</div>
+    </div>
+    <div class="bg-green-100 p-6 rounded-lg shadow-md mb-4">
+      <h2 class="text-xl font-bold mb-2">Dropout Risk</h2>
+      <p>Risk: Medium</p>
+    </div>
+    <div class="bg-gray-100 p-6 rounded-lg shadow-md mb-4">
+      <h2 class="text-xl font-bold mb-2">Tips & Guidance</h2>
+      <ul class="mt-2 space-y-2 text-gray-600 list-disc list-inside">
+        <li>Encourage your child to attend more classes.</li>
+        <li>Discuss academic progress regularly.</li>
+        <li>Support mental health and well-being.</li>
+      </ul>
+    </div>
+  </div>
+  <script type="module">
+    import { auth } from './firebase-config.js';
+    import { signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

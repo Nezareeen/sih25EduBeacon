@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - EduBeacon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCUg86E2JgYan1bboaoLTvkFw6YEexp_lk",
+      authDomain: "edubeacon-375fb.firebaseapp.com",
+      projectId: "edubeacon-375fb",
+      storageBucket: "edubeacon-375fb.firebasestorage.app",
+      messagingSenderId: "544303702084",
+      appId: "1:544303702084:web:4256ec0fba1d42baa6dc11",
+      measurementId: "G-KZJYW0ESP5"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    document.addEventListener('DOMContentLoaded', function() {
+      const signupForm = document.getElementById('signup-form');
+      const authError = document.getElementById('auth-error');
+      if (!signupForm) {
+        console.error('Signup form not found!');
+        return;
+      }
+      signupForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const role = document.getElementById('signup-role').value;
+        console.log('Signup attempt:', email, role);
+        if (!role) {
+          authError.textContent = 'Please select a role.';
+          console.warn('Role not selected');
+          return;
+        }
+        try {
+          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+          console.log('Signup success:', user.uid);
+          await db.collection('users').doc(user.uid).set({ role });
+          // Redirect to dashboard
+          if (role === 'admin') {
+            window.location.href = 'admin.html';
+          } else if (role === 'mentor') {
+            window.location.href = 'mentor.html';
+          } else if (role === 'parent') {
+            window.location.href = 'parent.html';
+          } else {
+            window.location.href = 'student.html';
+          }
+        } catch (error) {
+          console.error('Signup error:', error);
+          authError.textContent = error.message;
+        }
+      });
+    });
+  </script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-4 text-center">EduBeacon Sign Up</h2>
+    <form id="signup-form" class="space-y-4">
+      <input type="email" id="signup-email" class="w-full px-3 py-2 border rounded" placeholder="Email" required />
+      <input type="password" id="signup-password" class="w-full px-3 py-2 border rounded" placeholder="Password" required />
+      <select id="signup-role" class="w-full px-3 py-2 border rounded" required>
+        <option value="">Choose a role</option>
+        <option value="student">Student</option>
+        <option value="mentor">Mentor</option>
+        <option value="admin">Admin</option>
+        <option value="parent">Parent</option>
+      </select>
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded">Sign Up</button>
+    </form>
+    <div class="mt-4 text-center">
+      <span>Already have an account?</span>
+      <a href="login.html" class="text-blue-600 underline">Login</a>
+    </div>
+    <div id="auth-error" class="text-red-600 mt-2 text-center"></div>
+  </div>
+</body>
+</html>

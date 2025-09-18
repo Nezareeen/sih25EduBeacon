@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentor Dashboard - EduBeacon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto py-8">
+    <div class="flex justify-end mb-4">
+      <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+    </div>
+    <h1 class="text-2xl font-bold mb-4">Mentor Dashboard</h1>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-4">
+      <h2 class="text-xl font-bold mb-2">Student Dropout Risk</h2>
+      <canvas id="riskChart" width="400" height="200"></canvas>
+    </div>
+    <div class="bg-blue-100 p-6 rounded-lg shadow-md mb-4">
+      <h2 class="text-xl font-bold mb-2">Timetable</h2>
+      <p>Timetable goes here...</p>
+    </div>
+    <div class="bg-green-100 p-6 rounded-lg shadow-md mb-4">
+      <h2 class="text-xl font-bold mb-2">Student List</h2>
+      <ul>
+        <li>Jane Doe - Medium Risk</li>
+        <li>John Smith - High Risk</li>
+      </ul>
+    </div>
+    <div class="bg-yellow-100 p-6 rounded-lg shadow-md mb-4">
+      <h2 class="text-xl font-bold mb-2">Set Counseling Appointment</h2>
+      <form>
+        <input type="text" placeholder="Student Name" class="w-full px-3 py-2 border rounded mb-2" required />
+        <input type="date" class="w-full px-3 py-2 border rounded mb-2" required />
+        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded">Set Appointment</button>
+      </form>
+    </div>
+  </div>
+  <script type="module">
+    import { auth } from './firebase-config.js';
+    import { signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'login.html';
+    });
+  </script>
+  <script>
+    // Example Chart.js pie chart
+    const ctx = document.getElementById('riskChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Low', 'Medium', 'High'],
+        datasets: [{
+          data: [10, 5, 2],
+          backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
+        }]
+      }
+    });
+  </script>
+</body>
+</html>
