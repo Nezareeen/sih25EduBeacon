@@ -3,35 +3,321 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - EduBeacon</title>
+  <title>Admin Setup - EduBeacon</title>
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen">
-  <div class="container mx-auto py-8">
-    <div class="flex justify-end mb-4">
-      <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
-    </div>
-    <h1 class="text-2xl font-bold mb-4">Admin Dashboard</h1>
-    <div class="bg-white p-6 rounded-lg shadow-md mb-4">
-      <h2 class="text-xl font-bold mb-2">Database Access</h2>
-      <p>View, update, and monitor all student and mentor data here.</p>
-    </div>
-    <div class="bg-green-100 p-6 rounded-lg shadow-md mb-4">
-      <h2 class="text-xl font-bold mb-2">Dropout Risk Overview</h2>
-      <p>Dropout risk data for all students.</p>
-    </div>
-    <div class="bg-blue-100 p-6 rounded-lg shadow-md mb-4">
-      <h2 class="text-xl font-bold mb-2">Attendance Overview</h2>
-      <p>Attendance data for all students.</p>
-    </div>
-  </div>
-  <script type="module">
-    import { auth } from './firebase-config.js';
-    import { signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = 'login.html';
+  <!-- Urbanist Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <!-- Lucide React Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCUg86E2JgYan1bboaoLTvkFw6YEexp_lk",
+      authDomain: "edubeacon-375fb.firebaseapp.com",
+      projectId: "edubeacon-375fb",
+      storageBucket: "edubeacon-375fb.firebasestorage.app",
+      messagingSenderId: "544303702084",
+      appId: "1:544303702084:web:4256ec0fba1d42baa6dc11",
+      measurementId: "G-KZJYW0ESP5"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if user is authenticated
+      auth.onAuthStateChanged(function(user) {
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        // Get user data from Firestore
+        db.collection('users').doc(user.uid).get().then(function(doc) {
+          if (doc.exists) {
+            const userData = doc.data();
+            if (userData.role !== 'admin') {
+              window.location.href = 'login.html';
+              return;
+            }
+            
+            // Set profile picture with first letter of email for both desktop and mobile
+            const firstLetter = user.email.charAt(0).toUpperCase();
+            
+            const profilePicture = document.getElementById('profile-picture');
+            if (profilePicture) profilePicture.textContent = firstLetter;
+
+            const mobileProfilePicture = document.getElementById('mobile-profile-picture');
+            if (mobileProfilePicture) mobileProfilePicture.textContent = firstLetter;
+            const mobileUserEmail = document.getElementById('mobile-user-email');
+            if (mobileUserEmail) mobileUserEmail.textContent = user.email;
+          }
+        });
+      });
+
+      // Handle organization creation form
+      const orgForm = document.getElementById('org-form');
+      const orgInput = document.getElementById('org-name');
+      const errorMessage = document.getElementById('error-message');
+
+      orgForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const orgName = orgInput.value.trim();
+        
+        if (!orgName) {
+          errorMessage.textContent = 'Please enter an organization name.';
+          return;
+        }
+
+        try {
+          const user = auth.currentUser;
+          if (user) {
+            // Save organization data to Firestore
+            await db.collection('organizations').add({
+              name: orgName,
+              adminId: user.uid,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              adminEmail: user.email
+            });
+
+            // Update user document with organization info
+            await db.collection('users').doc(user.uid).update({
+              organizationName: orgName,
+              hasOrganization: true
+            });
+
+            // Redirect to admin dashboard
+            window.location.href = 'admin-dashboard.html';
+          }
+        } catch (error) {
+          console.error('Error creating organization:', error);
+          errorMessage.textContent = 'Error creating organization. Please try again.';
+        }
+      });
+
+      // Handle logout
+      const logoutBtn = document.getElementById('logout-btn');
+      logoutBtn.addEventListener('click', function() {
+        auth.signOut().then(function() {
+          window.location.href = 'login.html';
+        });
+      });
+
+      // Mobile menu toggle
+      const menuButton = document.getElementById('menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const closeMenuButton = document.getElementById('close-menu-button');
+
+      if(menuButton && mobileMenu && closeMenuButton) {
+        menuButton.addEventListener('click', function() {
+          mobileMenu.classList.remove('hidden');
+        });
+
+        closeMenuButton.addEventListener('click', function() {
+          mobileMenu.classList.add('hidden');
+        });
+      }
+
+    });
+
+    // Initialize Lucide icons
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
     });
   </script>
+  <style>
+    body {
+      font-family: 'Urbanist', sans-serif;
+    }
+    
+    .profile-circle {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 60px; /* Fixed width for the sidebar */
+      height: 100vh;
+      background: white;
+      border-right: 4px solid #2563eb;
+      z-index: 20;
+      display: none; /* Hidden by default */
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .profile-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .collage-element {
+        opacity: 0.3;
+      }
+      
+      .collage-element-1,
+      .collage-element-2,
+      .collage-element-3,
+      .collage-element-4 {
+        width: 60px;
+        height: 60px;
+      }
+    }
+
+    .collage-element {
+      position: absolute;
+      opacity: 0.7;
+      z-index: 1;
+    }
+    
+    .collage-element-1 {
+      bottom: 20px;
+      left: 30px;
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      border-radius: 50% 20% 50% 20%;
+      transform: rotate(-15deg);
+    }
+    
+    .collage-element-2 {
+      bottom: 40px;
+      right: 50px;
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(45deg, #4ecdc4, #44a08d);
+      border-radius: 30% 70% 30% 70%;
+      transform: rotate(25deg);
+    }
+    
+    .collage-element-3 {
+      bottom: 60px;
+      left: 180px;
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(45deg, #feca57, #ff9ff3);
+      border-radius: 50%;
+      transform: rotate(-45deg);
+    }
+
+    .collage-element-4 {
+      bottom: 20px;
+      right: 200px;
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(45deg, #a8e6cf, #88d8a3);
+      border-radius: 40% 60% 40% 60%;
+      transform: rotate(35deg);
+    }
+
+    @media (min-width: 768px) {
+      .sidebar {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen relative overflow-hidden bg-gray-50" style="background-image: url('collage-background.png'); background-size: cover; background-position: center;">
+  <!-- White gradient overlay -->
+  <div class="absolute inset-0 bg-gradient-to-b from-white via-white/80 to-transparent z-5"></div>
+  
+  <!-- Fixed Left Sidebar -->
+  <div class="sidebar">
+    <!-- Profile Picture -->
+    <div class="profile-circle mt-4" id="profile-picture">A</div>
+  </div>
+  
+  <!-- Mobile Header with Hamburger Menu -->
+  <div class="md:hidden flex justify-between items-center p-4 bg-white shadow-md relative z-20">
+    <button id="menu-button" class="text-gray-700">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+    </button>
+    <h1 class="text-xl font-bold text-blue-600">EduBeacon</h1>
+    <div class="w-6"></div> <!-- Spacer -->
+  </div>
+
+  <!-- Mobile Menu (hidden by default) -->
+  <div id="mobile-menu" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 z-30 md:hidden">
+    <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-xl p-4">
+      <button id="close-menu-button" class="absolute top-4 right-4 text-gray-600">&times;</button>
+      <div class="flex flex-col items-center mt-8">
+        <div class="profile-circle mb-4" id="mobile-profile-picture">A</div>
+        <p class="text-gray-700" id="mobile-user-email"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="md:ml-[60px] min-h-screen flex flex-col justify-center items-center px-4 md:px-8 relative z-10">
+    <!-- Header with Help Icon -->
+    <div class="absolute top-4 right-4 sm:top-6 sm:right-6 z-30">
+       <button class="text-blue-600 text-xl sm:text-2xl hover:text-blue-800 transition-colors" title="Help">
+         ?
+       </button>
+       <button id="logout-btn" class="text-blue-600 hover:text-blue-800 transition-colors text-xs sm:text-sm ml-2 sm:ml-4">
+         Logout
+       </button>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="w-full max-w-4xl">
+      <!-- EduBeacon Logo -->
+      <h1 class="text-4xl sm:text-6xl md:text-8xl font-bold text-blue-600 mb-4 md:mb-8 text-left">EduBeacon</h1>
+      
+      <!-- Title Section -->
+      <div class="mb-8 md:mb-12">
+        <h2 class="text-3xl sm:text-4xl md:text-6xl font-bold text-black mb-2 md:mb-4">Hello there! Admin!</h2>
+        <p class="text-lg sm:text-xl md:text-2xl text-black">Let's get started by creating your Organization.</p>
+      </div>
+      
+      <!-- Organization Creation Form -->
+      <div class="flex justify-center">
+        <form id="org-form" class="w-full max-w-xs sm:max-w-md md:max-w-3xl">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="org-name" 
+              placeholder="Name your Organization" 
+              class="w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg border-2 border-blue-300 rounded-full focus:outline-none focus:border-blue-500 transition-colors bg-white text-gray-700 placeholder-gray-500"
+              required
+            />
+            <button 
+              type="submit" 
+              class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
+          <div id="error-message" class="text-red-600 mt-2 text-xs sm:text-sm text-center"></div>
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
