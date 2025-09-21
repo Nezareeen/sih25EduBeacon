@@ -37,22 +37,33 @@ connectDB();
 
 const app = express();
 
-// --- CORS Configuration (Improved) ---
-// This is a more secure way to handle CORS than a simple app.use(cors()).
-// It explicitly allows requests only from your Vercel frontend domain.
-const FRONTEND_URL = process.env.FRONTEND_URL;
-if (!FRONTEND_URL) {
-    console.error('FRONTEND_URL environment variable is not set. CORS will not be configured correctly.');
-}
+// --- CORS Configuration (Hardened, with Preflight) ---
+// Allow your Vercel production domain and local dev. Add preview pattern if needed.
+const FRONTEND_URL = (process.env.FRONTEND_URL || '').replace(/\/$/, ''); // strip trailing slash
+const ALLOWED_ORIGINS = [
+  FRONTEND_URL,
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+].filter(Boolean);
 
 const corsOptions = {
-    origin: FRONTEND_URL,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // allow non-browser or same-origin
+    const allowed = ALLOWED_ORIGINS.includes(origin) || /https:\/\/.*\.vercel\.app$/.test(origin);
+    if (allowed) return callback(null, true);
+    console.warn('[CORS] Blocked origin:', origin);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false, // set true only if you use cookies
+  optionsSuccessStatus: 204,
 };
-app.use(cors(corsOptions));
-// --- End of CORS Configuration ---
 
+// Must be before any routes
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // explicit preflight handling
+// --- End of CORS Configuration ---
 
 // Middleware
 app.use(express.json());
