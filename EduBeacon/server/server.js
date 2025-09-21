@@ -37,8 +37,24 @@ connectDB();
 
 const app = express();
 
+// --- CORS Configuration (Improved) ---
+// This is a more secure way to handle CORS than a simple app.use(cors()).
+// It explicitly allows requests only from your Vercel frontend domain.
+const FRONTEND_URL = process.env.FRONTEND_URL;
+if (!FRONTEND_URL) {
+    console.error('FRONTEND_URL environment variable is not set. CORS will not be configured correctly.');
+}
+
+const corsOptions = {
+    origin: FRONTEND_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+// --- End of CORS Configuration ---
+
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Routes
