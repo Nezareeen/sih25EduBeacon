@@ -40,22 +40,20 @@ export const AuthProvider = ({ children }) => {
     loading: true
   });
 
-  // Set axios default header
   useEffect(() => {
     if (state.token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${state.token}`;
+      axios.defaults.headers.common['Authorization'] = Bearer ${state.token};
     } else {
       delete axios.defaults.headers.common['Authorization'];
     }
   }, [state.token]);
 
-  // Check if user is logged in on app start
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const res = await axios.get('/api/auth/me');
+          const res = await axios.get('https://sihedubeacon25.onrender.com/api/auth/me');
           dispatch({
             type: 'LOGIN_SUCCESS',
             payload: { user: res.data, token }
@@ -74,45 +72,56 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post('https://sihedubeacon25.onrender.com/api/auth/login', {
+        email,
+        password
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
       const { token, user } = res.data;
-      
       localStorage.setItem('token', token);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: { user, token }
       });
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Login failed'
       };
     }
   };
 
   const registerAdmin = async (name, email, password, organizationName) => {
     try {
-      const res = await axios.post('/api/auth/admin-register', {
+      const res = await axios.post('https://sihedubeacon25.onrender.com/api/auth/admin-register', {
         name,
         email,
         password,
         organizationName
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+
       const { token, user } = res.data;
-      
       localStorage.setItem('token', token);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: { user, token }
       });
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed'
       };
     }
   };
