@@ -42,6 +42,7 @@ const app = express();
 const FRONTEND_URL = (process.env.FRONTEND_URL || '').replace(/\/$/, ''); // strip trailing slash
 const ALLOWED_ORIGINS = [
   FRONTEND_URL,
+  'https://sihedubeacon25.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
 ].filter(Boolean);
