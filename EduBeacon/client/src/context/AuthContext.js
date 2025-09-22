@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        const res = await axios.get('https://sih25edubeacon.onrender.com/api/auth/me');
+        const res = await axios.get('/api/auth/me');
         dispatch({
           type: 'LOGIN_SUCCESS',
           payload: { user: res.data, token: state.token }
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const res = await axios.post(
-        'https://sih25edubeacon.onrender.com/api/auth/login',
+        '/api/auth/login',
         { email, password },
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }) => {
   const registerAdmin = async (name, email, password, organizationName) => {
     try {
       const res = await axios.post(
-        'https://sih25edubeacon.onrender.com/api/auth/admin-register',
+        '/api/auth/admin-register',
         { name, email, password, organizationName },
         { headers: { 'Content-Type': 'application/json' } }
       );

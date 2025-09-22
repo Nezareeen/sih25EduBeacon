@@ -9,7 +9,7 @@ import axios from 'axios';
 // In development, default to local server
 const BASE_URL =
   process.env.REACT_APP_API_BASE ||
-  (process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : 'https://sihedubeacon25.onrender.com');
+  (process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : 'https://sih25edubeacon.onrender.com');
 
 axios.defaults.baseURL = BASE_URL;
 
