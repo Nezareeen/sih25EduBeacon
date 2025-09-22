@@ -37,46 +37,24 @@ connectDB();
 
 const app = express();
 
-// --- CORS Configuration (Hardened, with Preflight) ---
-// Allow your Vercel production domain and local dev. Add preview pattern if needed.
-const FRONTEND_URL = (process.env.FRONTEND_URL || '').replace(/\/$/, ''); // strip trailing slash
-const ALLOWED_ORIGINS = [
-  FRONTEND_URL,
-  'https://sihedubeacon25.vercel.app',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000'
-].filter(Boolean);
-
+// --- CORS Configuration (Permissive) ---
 const corsOptions = {
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow non-browser or same-origin
-    const isVercel = /https:\/\/.*\.vercel\.app$/.test(origin);
-    const allowed = ALLOWED_ORIGINS.includes(origin) || isVercel;
-    if (allowed) {
-      return callback(null, true);
-    }
-    console.warn('[CORS] Blocked origin:', origin, '| Allowed list:', ALLOWED_ORIGINS);
-    return callback(new Error('Not allowed by CORS'));
-  },
+  origin: true, // allow all origins
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-  // Broaden allowed headers to avoid preflight failures from common client libs/browsers
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: false, // set true only if you use cookies
+  credentials: false,
   optionsSuccessStatus: 204,
 };
 
 // Global CORS headers + fail-safe preflight responder to avoid any 404 on OPTIONS
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const isVercel = origin && /https:\/\/.*\.vercel\.app$/.test(origin);
-  const allowed = origin && (ALLOWED_ORIGINS.includes(origin) || isVercel);
-  if (allowed) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Vary', 'Origin');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    // res.header('Access-Control-Allow-Credentials', 'true'); // enable only if you use cookies
-  }
+  const origin = req.headers.origin || '*';
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Vary', 'Origin');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  // res.header('Access-Control-Allow-Credentials', 'true'); // only if you use cookies
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
   }
