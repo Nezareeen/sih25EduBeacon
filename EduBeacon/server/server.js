@@ -42,6 +42,7 @@ const app = express();
 const FRONTEND_URL = (process.env.FRONTEND_URL || '').replace(/\/$/, ''); // strip trailing slash
 const ALLOWED_ORIGINS = [
   FRONTEND_URL,
+  'https://sihedubeacon25.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
 ].filter(Boolean);
@@ -49,13 +50,17 @@ const ALLOWED_ORIGINS = [
 const corsOptions = {
   origin: function(origin, callback) {
     if (!origin) return callback(null, true); // allow non-browser or same-origin
-    const allowed = ALLOWED_ORIGINS.includes(origin) || /https:\/\/.*\.vercel\.app$/.test(origin);
-    if (allowed) return callback(null, true);
-    console.warn('[CORS] Blocked origin:', origin);
+    const isVercel = /https:\/\/.*\.vercel\.app$/.test(origin);
+    const allowed = ALLOWED_ORIGINS.includes(origin) || isVercel;
+    if (allowed) {
+      return callback(null, true);
+    }
+    console.warn('[CORS] Blocked origin:', origin, '| Allowed list:', ALLOWED_ORIGINS);
     return callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  // Broaden allowed headers to avoid preflight failures from common client libs/browsers
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: false, // set true only if you use cookies
   optionsSuccessStatus: 204,
 };
