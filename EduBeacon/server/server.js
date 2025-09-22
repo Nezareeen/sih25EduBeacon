@@ -65,6 +65,24 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
+// Global CORS headers + fail-safe preflight responder to avoid any 404 on OPTIONS
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const isVercel = origin && /https:\/\/.*\.vercel\.app$/.test(origin);
+  const allowed = origin && (ALLOWED_ORIGINS.includes(origin) || isVercel);
+  if (allowed) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    // res.header('Access-Control-Allow-Credentials', 'true'); // enable only if you use cookies
+  }
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 // Must be before any routes
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // explicit preflight handling
