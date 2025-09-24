@@ -60,7 +60,7 @@ const AdminRegister = () => {
       {/* Navigation */}
       <nav className="nav-glass-effect px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold text-white">
+          <Link to="/" className="text-2xl font-bold text-[rgb(51,116,253)]">
             EduBeacon
           </Link>
         </div>
@@ -68,21 +68,21 @@ const AdminRegister = () => {
 
       <div className="flex items-center justify-center px-4 min-h-[calc(100vh-80px)]">
         <div className="max-w-md w-full">
-          <div className="glass-effect rounded-xl shadow-lg p-6 border border-white/20">
+          <div className="liquid-form rounded-xl shadow-lg p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Create Organization</h1>
-            <p className="text-white/80">Set up your EduBeacon organization</p>
+            <h1 className="text-3xl font-bold text-[rgb(51,116,253)] mb-2">Create Organization</h1>
+            <p className="text-[rgb(51,116,253)]">Set up your EduBeacon organization</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            <div className="error-message mb-6">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-white mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-[rgb(51,116,253)] mb-2">
                 Full Name
               </label>
               <input
@@ -98,7 +98,7 @@ const AdminRegister = () => {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-[rgb(51,116,253)] mb-2">
                 Email Address
               </label>
               <input
@@ -114,7 +114,7 @@ const AdminRegister = () => {
             </div>
 
             <div>
-              <label htmlFor="organizationName" className="block text-sm font-medium text-white mb-2">
+              <label htmlFor="organizationName" className="block text-sm font-medium text-[rgb(51,116,253)] mb-2">
                 Organization Name
               </label>
               <input
@@ -130,7 +130,7 @@ const AdminRegister = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-[rgb(51,116,253)] mb-2">
                 Password
               </label>
               <input
@@ -146,7 +146,7 @@ const AdminRegister = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-white mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[rgb(51,116,253)] mb-2">
                 Confirm Password
               </label>
               <input
@@ -171,9 +171,9 @@ const AdminRegister = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-white/80">
+            <p className="text-[rgb(51,116,253)]">
               Already have an account?{' '}
-              <Link to="/login" className="text-white hover:text-white/80 font-medium">
+              <Link to="/login" className="text-[rgb(51,116,253)] hover:text-[rgb(51,116,253)]/80 font-medium">
                 Sign In
               </Link>
             </p>
@@ -183,9 +183,9 @@ const AdminRegister = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-black/20 backdrop-blur-md py-8">
-        <div className="max-w-7xl mx-auto px-6 text-center text-white">
-          <p>&copy; 2024 EduBeacon. Empowering student success through AI.</p>
+      <footer className="nav-glass-effect py-8 mt-8">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-[rgb(51,116,253)]">&copy; 2024 EduBeacon. Empowering student success through AI.</p>
         </div>
       </footer>
     </div>

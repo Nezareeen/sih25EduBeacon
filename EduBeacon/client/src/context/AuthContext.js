@@ -33,14 +33,15 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
+  const initialToken = localStorage.getItem('token');
+
   const [state, dispatch] = useReducer(authReducer, {
-    isAuthenticated: false,
+    isAuthenticated: !!initialToken,
     user: null,
-    token: localStorage.getItem('token'),
+    token: initialToken,
     loading: true
   });
 
-  // Set axios default header
   useEffect(() => {
     if (state.token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${state.token}`;
@@ -49,70 +50,75 @@ export const AuthProvider = ({ children }) => {
     }
   }, [state.token]);
 
-  // Check if user is logged in on app start
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const res = await axios.get('/api/auth/me');
-          dispatch({
-            type: 'LOGIN_SUCCESS',
-            payload: { user: res.data, token }
-          });
-        } catch (error) {
-          localStorage.removeItem('token');
-          dispatch({ type: 'LOGIN_FAIL' });
-        }
-      } else {
+      if (!state.token) {
         dispatch({ type: 'SET_LOADING', payload: false });
+        return;
+      }
+
+      try {
+        const res = await axios.get('/api/auth/me');
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          payload: { user: res.data, token: state.token }
+        });
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        localStorage.removeItem('token');
+        dispatch({ type: 'LOGIN_FAIL' });
       }
     };
 
     checkAuth();
-  }, []);
+  }, [state.token]);
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post(
+        '/api/auth/login',
+        { email, password },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
       const { token, user } = res.data;
-      
       localStorage.setItem('token', token);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: { user, token }
       });
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+      console.error('Login error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Login failed'
       };
     }
   };
 
   const registerAdmin = async (name, email, password, organizationName) => {
     try {
-      const res = await axios.post('/api/auth/admin-register', {
-        name,
-        email,
-        password,
-        organizationName
-      });
+      const res = await axios.post(
+        '/api/auth/admin-register',
+        { name, email, password, organizationName },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
       const { token, user } = res.data;
-      
       localStorage.setItem('token', token);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: { user, token }
       });
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
+      console.error('Registration error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed'
       };
     }
   };
@@ -123,12 +129,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{
-      ...state,
-      login,
-      registerAdmin,
-      logout
-    }}>
+    <AuthContext.Provider
+      value={{
+        ...state,
+        login,
+        registerAdmin,
+        logout
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

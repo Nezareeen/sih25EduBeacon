@@ -246,4 +246,33 @@ router.get('/departments', async (req, res) => {
   }
 });
 
+// @route   PUT /api/admin/update-student/:id
+// @desc    Update student data (including roll number)
+// @access  Private (Admin)
+router.put('/update-student/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const student = await User.findOneAndUpdate(
+      { 
+        _id: id, 
+        organizationId: req.user.organizationId,
+        role: 'student'
+      },
+      updateData,
+      { new: true }
+    ).select('-password');
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.json({ success: true, student });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
