@@ -7,13 +7,13 @@ const Home = () => {
       {/* Navigation */}
       <nav className="nav-glass-effect px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="text-2xl font-bold text-white">
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">
             EduBeacon
           </div>
           <div className="space-x-4">
             <Link 
               to="/login" 
-              className="text-white hover:text-primary-200 transition-colors duration-200"
+              className="text-[rgb(51,116,253)] hover:text-[rgb(51,116,253)]/80 transition-colors duration-200"
             >
               Login
             </Link>
@@ -30,13 +30,13 @@ const Home = () => {
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold text-[rgb(51,116,253)] mb-6">
             AI-Powered
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-white">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[rgb(51,116,253)] to-[rgb(51,116,253)]">
               Student Success
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-primary-100 mb-12 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-[rgb(51,116,253)] mb-12 max-w-3xl mx-auto leading-relaxed">
             Prevent student dropout with intelligent counseling, personalized support, 
             and data-driven insights that help every student thrive.
           </p>
@@ -54,26 +54,26 @@ const Home = () => {
       {/* Features Section */}
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="card glass-effect text-white">
+          <div className="card text-[rgb(51,116,253)]">
             <div className="text-4xl mb-4">🤖</div>
-            <h3 className="text-2xl font-bold mb-4">AI Counseling</h3>
-            <p className="text-primary-100">
+            <h3 className="text-2xl font-bold mb-4 text-[rgb(51,116,253)]">AI Counseling</h3>
+            <p className="text-[rgb(51,116,253)] leading-relaxed">
               Intelligent chatbot provides 24/7 support and guidance to students 
               when they need it most.
             </p>
           </div>
-          <div className="card glass-effect text-white">
+          <div className="card text-[rgb(51,116,253)]">
             <div className="text-4xl mb-4">📊</div>
-            <h3 className="text-2xl font-bold mb-4">Analytics Dashboard</h3>
-            <p className="text-primary-100">
+            <h3 className="text-2xl font-bold mb-4 text-[rgb(51,116,253)]">Analytics Dashboard</h3>
+            <p className="text-[rgb(51,116,253)] leading-relaxed">
               Real-time insights and predictive analytics help identify at-risk 
               students before it's too late.
             </p>
           </div>
-          <div className="card glass-effect text-white">
+          <div className="card text-[rgb(51,116,253)]">
             <div className="text-4xl mb-4">👥</div>
-            <h3 className="text-2xl font-bold mb-4">Mentor Support</h3>
-            <p className="text-primary-100">
+            <h3 className="text-2xl font-bold mb-4 text-[rgb(51,116,253)]">Mentor Support</h3>
+            <p className="text-[rgb(51,116,253)] leading-relaxed">
               Connect students with mentors and provide tools for effective 
               academic and personal guidance.
             </p>
@@ -82,9 +82,9 @@ const Home = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-black/20 backdrop-blur-md py-8">
-        <div className="max-w-7xl mx-auto px-6 text-center text-white">
-          <p>&copy; 2024 EduBeacon. Empowering student success through AI.</p>
+      <footer className="nav-glass-effect py-8 mt-12">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-[rgb(51,116,253)]">&copy; 2024 EduBeacon. Empowering student success through AI.</p>
         </div>
       </footer>
     </div>

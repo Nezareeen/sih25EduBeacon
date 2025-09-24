@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import DataPopulator from '../DataPopulator';
 
 const HOURS = [9, 10, 11, 12, 13, 14, 15, 16]; // 9am - 5pm
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -10,6 +11,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showAddUser, setShowAddUser] = useState(false);
   const [showAddDept, setShowAddDept] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'student' });
   const [newDept, setNewDept] = useState({ name: '', description: '' });
 
@@ -147,7 +149,6 @@ const AdminDashboard = () => {
         const weekStartDay = startOfWeek(ws);
         data.events.forEach(ev => {
           const start = new Date(ev.start);
-          const end = new Date(ev.end);
           const dayIdx = dayIndexWithinWeek(start, weekStartDay);
           if (dayIdx >= 0 && dayIdx < DAYS.length) {
             const hourIdx = HOURS.indexOf(start.getHours());
@@ -239,63 +240,88 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
+      {/* Header with Tab Navigation */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-        <div className="space-x-4">
-          <button onClick={() => setShowAddUser(true)} className="btn-primary">Add User</button>
-          <button onClick={() => setShowAddDept(true)} className="btn-secondary">Add Department</button>
+        <h1 className="text-3xl font-bold text-[rgb(51,116,253)]">Admin Dashboard</h1>
+        <div className="flex items-center space-x-4">
+          <div className="flex space-x-1">
+            {[
+              { id: 'dashboard', label: 'Dashboard' },
+              { id: 'populate', label: '📊 Sample Data' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-[rgb(51,116,253)]/20 text-[rgb(51,116,253)] border border-[rgb(51,116,253)]/30'
+                    : 'text-[rgb(51,116,253)]/70 hover:text-[rgb(51,116,253)] hover:bg-[rgb(51,116,253)]/10'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {activeTab === 'dashboard' && (
+            <div className="space-x-4">
+              <button onClick={() => setShowAddUser(true)} className="btn-primary">Add User</button>
+              <button onClick={() => setShowAddDept(true)} className="btn-secondary">Add Department</button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="glass-effect rounded-xl shadow-lg p-6">
-          <div className="text-2xl font-bold text-white">{users.length}</div>
-          <div className="text-white">Total Users</div>
+      {/* Tab Content */}
+      {activeTab === 'dashboard' && (
+        <>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="stats-card rounded-xl p-6">
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">{users.length}</div>
+          <div className="text-[rgb(51,116,253)]">Total Users</div>
         </div>
-        <div className="glass-effect rounded-xl shadow-lg p-6">
-          <div className="text-2xl font-bold text-green-200">{users.filter(u => u.role === 'student').length}</div>
-          <div className="text-white">Students</div>
+        <div className="stats-card rounded-xl p-6">
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">{users.filter(u => u.role === 'student').length}</div>
+          <div className="text-[rgb(51,116,253)]">Students</div>
         </div>
-        <div className="glass-effect rounded-xl shadow-lg p-6">
-          <div className="text-2xl font-bold text-blue-200">{users.filter(u => u.role === 'mentor').length}</div>
-          <div className="text-white">Mentors</div>
+        <div className="stats-card rounded-xl p-6">
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">{users.filter(u => u.role === 'mentor').length}</div>
+          <div className="text-[rgb(51,116,253)]">Mentors</div>
         </div>
-        <div className="glass-effect rounded-xl shadow-lg p-6">
-          <div className="text-2xl font-bold text-purple-200">{departments.length}</div>
-          <div className="text-white">Departments</div>
+        <div className="stats-card rounded-xl p-6">
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">{departments.length}</div>
+          <div className="text-[rgb(51,116,253)]">Departments</div>
         </div>
       </div>
 
       {/* Users Table */}
       <div className="glass-effect rounded-xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-white mb-4">Users & Invitation Codes</h2>
+        <h2 className="text-xl font-bold text-[rgb(51,116,253)] mb-4">Users & Invitation Codes</h2>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-white/30">
-            <thead className="bg-white/20">
+          <table className="liquid-glass-table min-w-full">
+            <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Role</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Invitation Code</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(51,116,253)] uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(51,116,253)] uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(51,116,253)] uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(51,116,253)] uppercase tracking-wider">Invitation Code</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/30">
+            <tbody className="divide-y divide-white/20">
               {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{user.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">{user.email}</td>
+                <tr key={user.id} className="hover:bg-white/5 transition-colors duration-200">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[rgb(51,116,253)]">{user.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[rgb(51,116,253)]">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.role === 'student' ? 'bg-green-400/30 text-green-200 border border-green-400/50' :
-                      user.role === 'mentor' ? 'bg-blue-400/30 text-blue-200 border border-blue-400/50' :
-                      'bg-purple-400/30 text-purple-200 border border-purple-400/50'
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full backdrop-blur-sm ${
+                      user.role === 'student' ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-400/30' :
+                      user.role === 'mentor' ? 'bg-blue-400/20 text-blue-200 border border-blue-400/30' :
+                      'bg-purple-400/20 text-purple-200 border border-purple-400/30'
                     }`}>
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white">{user.uniqueCode}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-[rgb(51,116,253)] bg-white/5 rounded-lg">{user.uniqueCode}</td>
                 </tr>
               ))}
             </tbody>
@@ -305,10 +331,10 @@ const AdminDashboard = () => {
 
       {/* Mentor Assignment */}
       <div className="glass-effect rounded-xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-white mb-4">Assign Mentor to Student</h2>
+        <h2 className="text-xl font-bold text-[rgb(51,116,253)] mb-4">Assign Mentor to Student</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           <div>
-            <label className="block text-white/80 text-sm mb-2">Student</label>
+            <label className="block text-[rgb(51,116,253)] text-sm mb-2">Student</label>
             <select value={selectedStudentId} onChange={(e) => setSelectedStudentId(e.target.value)} className="input-field">
               <option value="">Select a student</option>
               {students.map(s => (
@@ -317,7 +343,7 @@ const AdminDashboard = () => {
             </select>
           </div>
           <div>
-            <label className="block text-white/80 text-sm mb-2">Mentor</label>
+            <label className="block text-[rgb(51,116,253)] text-sm mb-2">Mentor</label>
             <select value={selectedMentorId} onChange={(e) => setSelectedMentorId(e.target.value)} className="input-field">
               <option value="">Select a mentor</option>
               {mentors.map(m => (
@@ -329,11 +355,11 @@ const AdminDashboard = () => {
             <button onClick={handleAssignMentor} disabled={!selectedStudentId || !selectedMentorId || assigning} className="btn-primary">
               {assigning ? 'Assigning...' : 'Assign'}
             </button>
-            {assignMsg && <span className="text-white/80 text-sm self-center">{assignMsg}</span>}
+            {assignMsg && <span className="text-[rgb(51,116,253)] text-sm self-center">{assignMsg}</span>}
           </div>
         </div>
         {selectedStudent && (
-          <p className="text-white/70 text-sm mt-3">Current mentor: {selectedStudent.mentorId ? mentors.find(m => m._id === selectedStudent.mentorId)?.name || 'Assigned' : 'None'}</p>
+          <p className="text-[rgb(51,116,253)] text-sm mt-3">Current mentor: {selectedStudent.mentorId ? mentors.find(m => m._id === selectedStudent.mentorId)?.name || 'Assigned' : 'None'}</p>
         )}
       </div>
 
@@ -341,12 +367,12 @@ const AdminDashboard = () => {
       <div className="glass-effect rounded-xl shadow-lg p-6">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-white mb-2">Weekly Timetable Builder</h2>
-            <p className="text-white/70 text-sm">Build a weekly schedule (Mon-Fri, 9AM-5PM) for a student.</p>
+            <h2 className="text-xl font-bold text-[rgb(51,116,253)] mb-2">Weekly Timetable Builder</h2>
+            <p className="text-[rgb(51,116,253)] text-sm">Build a weekly schedule (Mon-Fri, 9AM-5PM) for a student.</p>
           </div>
           <div className="flex gap-3 items-end">
             <div>
-              <label className="block text-white/80 text-sm mb-2">Student</label>
+              <label className="block text-[rgb(51,116,253)] text-sm mb-2">Student</label>
               <select value={selectedStudentId} onChange={(e) => setSelectedStudentId(e.target.value)} className="input-field">
                 <option value="">Select a student</option>
                 {students.map(s => (
@@ -355,9 +381,9 @@ const AdminDashboard = () => {
               </select>
             </div>
             <div>
-              <label className="block text-white/80 text-sm mb-2">Week Start (Mon)</label>
+              <label className="block text-[rgb(51,116,253)] text-sm mb-2">Week Start (Mon)</label>
               <input type="date" value={weekStart} onChange={(e) => setWeekStart(e.target.value)} className="input-field" />
-              <p className="text-xs text-white/60 mt-1">Week End: {computedWeekEnd}</p>
+              <p className="text-xs text-[rgb(51,116,253)] mt-1">Week End: {computedWeekEnd}</p>
             </div>
             <div className="flex gap-2">
               <button onClick={saveTimetable} disabled={!selectedStudentId || savingTT} className="btn-primary">{savingTT ? 'Saving...' : 'Save Timetable'}</button>
@@ -448,6 +474,13 @@ const AdminDashboard = () => {
             </form>
           </div>
         </div>
+      )}
+        </>
+      )}
+
+      {/* Sample Data Population Tab */}
+      {activeTab === 'populate' && (
+        <DataPopulator />
       )}
     </div>
   );

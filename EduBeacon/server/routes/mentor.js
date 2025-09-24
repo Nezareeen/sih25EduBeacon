@@ -166,4 +166,288 @@ router.get('/student/:id', async (req, res) => {
   }
 });
 
+// @route   GET /api/mentor/students-overview
+// @desc    Get comprehensive overview of all assigned students with consolidated data
+// @access  Private (Mentor)
+router.get('/students-overview', async (req, res) => {
+  try {
+    const students = await User.find({
+      organizationId: req.user.organizationId,
+      role: 'student',
+      mentorId: req.user._id
+    }).select('-password');
+
+    // Calculate risk analysis for each student
+    const studentsWithAnalysis = students.map(student => {
+      student.calculateRiskAnalysis();
+      return student;
+    });
+
+    res.json(studentsWithAnalysis);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/mentor/student-profile/:id
+// @desc    Get detailed student profile with all consolidated data
+// @access  Private (Mentor)
+router.get('/student-profile/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await User.findOne({ 
+      _id: id, 
+      mentorId: req.user._id, 
+      organizationId: req.user.organizationId 
+    }).select('-password');
+    
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Update risk analysis
+    student.calculateRiskAnalysis();
+    await student.save();
+
+    res.json(student);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/mentor/high-risk-alerts
+// @desc    Get all high-risk alerts for assigned students
+// @access  Private (Mentor)
+router.get('/high-risk-alerts', async (req, res) => {
+  try {
+    const students = await User.find({
+      organizationId: req.user.organizationId,
+      role: 'student',
+      mentorId: req.user._id
+    }).select('-password');
+
+    const alerts = [];
+    
+    students.forEach(student => {
+      student.calculateRiskAnalysis();
+      
+      if (student.riskAnalysis?.alertsGenerated?.length > 0) {
+        student.riskAnalysis.alertsGenerated.forEach(alert => {
+          if (!alert.acknowledged && (alert.severity === 'high' || alert.severity === 'critical')) {
+            alerts.push({
+              ...alert.toObject(),
+              student: {
+                _id: student._id,
+                name: student.name,
+                rollNumber: student.rollNumber,
+                email: student.email
+              }
+            });
+          }
+        });
+      }
+    });
+
+    // Sort by severity and date
+    alerts.sort((a, b) => {
+      const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+      if (severityOrder[a.severity] !== severityOrder[b.severity]) {
+        return severityOrder[b.severity] - severityOrder[a.severity];
+      }
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    res.json(alerts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/mentor/acknowledge-alert/:studentId/:alertId
+// @desc    Acknowledge a specific alert for a student
+// @access  Private (Mentor)
+router.post('/acknowledge-alert/:studentId/:alertId', async (req, res) => {
+  try {
+    const { studentId, alertId } = req.params;
+    
+    const student = await User.findOne({
+      _id: studentId,
+      mentorId: req.user._id,
+      organizationId: req.user.organizationId
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Find and acknowledge the alert
+    const alert = student.riskAnalysis?.alertsGenerated?.id(alertId);
+    if (alert) {
+      alert.acknowledged = true;
+      alert.acknowledgedBy = req.user._id;
+      alert.acknowledgedDate = new Date();
+      
+      await student.save();
+      res.json({ message: 'Alert acknowledged successfully' });
+    } else {
+      res.status(404).json({ message: 'Alert not found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/mentor/update-attendance/:studentId
+// @desc    Update attendance record for a student
+// @access  Private (Mentor)
+router.post('/update-attendance/:studentId', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { date, status, subject } = req.body;
+
+    const student = await User.findOne({
+      _id: studentId,
+      mentorId: req.user._id,
+      organizationId: req.user.organizationId
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    student.updateAttendance(new Date(date), status, subject);
+    await student.save();
+
+    res.json({ 
+      message: 'Attendance updated successfully',
+      attendanceData: student.attendanceData,
+      riskAnalysis: student.riskAnalysis
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/mentor/add-test-result/:studentId
+// @desc    Add test result for a student
+// @access  Private (Mentor)
+router.post('/add-test-result/:studentId', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const testData = req.body;
+
+    const student = await User.findOne({
+      _id: studentId,
+      mentorId: req.user._id,
+      organizationId: req.user.organizationId
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    student.addTestResult({
+      ...testData,
+      date: new Date(testData.date)
+    });
+    await student.save();
+
+    res.json({ 
+      message: 'Test result added successfully',
+      academicData: student.academicData,
+      riskAnalysis: student.riskAnalysis
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/mentor/update-fee-status/:studentId
+// @desc    Update fee payment status for a student
+// @access  Private (Mentor)
+router.post('/update-fee-status/:studentId', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { paymentData } = req.body;
+
+    const student = await User.findOne({
+      _id: studentId,
+      mentorId: req.user._id,
+      organizationId: req.user.organizationId
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Update fee data
+    if (!student.feeData) {
+      student.feeData = {
+        totalFeeAmount: 0,
+        paidAmount: 0,
+        pendingAmount: 0,
+        paymentStatus: 'pending',
+        paymentHistory: []
+      };
+    }
+
+    // Add payment to history if provided
+    if (paymentData.amount && paymentData.amount > 0) {
+      student.feeData.paymentHistory.push({
+        amount: paymentData.amount,
+        paymentDate: new Date(paymentData.paymentDate || Date.now()),
+        paymentMethod: paymentData.paymentMethod || 'cash',
+        receiptNumber: paymentData.receiptNumber || `RCP${Date.now()}`,
+        description: paymentData.description || ''
+      });
+
+      student.feeData.paidAmount += paymentData.amount;
+      student.feeData.pendingAmount = Math.max(0, student.feeData.totalFeeAmount - student.feeData.paidAmount);
+      student.feeData.lastPaymentDate = new Date();
+    }
+
+    // Update payment status
+    if (paymentData.totalFeeAmount) {
+      student.feeData.totalFeeAmount = paymentData.totalFeeAmount;
+      student.feeData.pendingAmount = Math.max(0, paymentData.totalFeeAmount - student.feeData.paidAmount);
+    }
+
+    if (paymentData.dueDate) {
+      student.feeData.dueDate = new Date(paymentData.dueDate);
+    }
+
+    // Determine payment status
+    if (student.feeData.pendingAmount <= 0) {
+      student.feeData.paymentStatus = 'paid';
+    } else if (student.feeData.paidAmount > 0) {
+      student.feeData.paymentStatus = 'partial';
+    } else if (student.feeData.dueDate && new Date() > student.feeData.dueDate) {
+      student.feeData.paymentStatus = 'overdue';
+    } else {
+      student.feeData.paymentStatus = 'pending';
+    }
+
+    student.feeData.lastUpdated = new Date();
+
+    // Recalculate risk analysis
+    student.calculateRiskAnalysis();
+    await student.save();
+
+    res.json({ 
+      message: 'Fee status updated successfully',
+      feeData: student.feeData,
+      riskAnalysis: student.riskAnalysis
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

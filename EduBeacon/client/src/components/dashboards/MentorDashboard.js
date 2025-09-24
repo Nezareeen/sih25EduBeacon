@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Legend } from 'recharts';
+import StudentsOverview from '../StudentsOverview';
 
 const COLORS = { low: '#22c55e', medium: '#f59e0b', high: '#ef4444', none: '#9ca3af' };
 
@@ -12,6 +13,7 @@ const MentorDashboard = () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     fetchData();
@@ -73,38 +75,63 @@ const MentorDashboard = () => {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
-      <h1 className="text-3xl font-bold text-white">Mentor Dashboard</h1>
+      {/* Header with Tab Navigation */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-[rgb(51,116,253)]">Mentor Dashboard</h1>
+        <div className="flex space-x-1">
+          {[
+            { id: 'overview', label: 'Analytics Overview' },
+            { id: 'students', label: 'Students Management' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-[rgb(51,116,253)]/20 text-[rgb(51,116,253)] border border-[rgb(51,116,253)]/30'
+                  : 'text-[rgb(51,116,253)]/70 hover:text-[rgb(51,116,253)] hover:bg-[rgb(51,116,253)]/10'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <>
+          {/* Analytics Overview Content */}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="glass-effect rounded-xl shadow-lg p-6">
-          <div className="text-2xl font-bold text-white">{analytics?.totalStudents || 0}</div>
-          <div className="text-white">Assigned Students</div>
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">{analytics?.totalStudents || 0}</div>
+          <div className="text-[rgb(51,116,253)]">Assigned Students</div>
         </div>
         <div className="glass-effect rounded-xl shadow-lg p-6">
-          <div className="text-2xl font-bold text-green-200">{(analytics?.attendanceRate || 0).toFixed ? (analytics?.attendanceRate || 0).toFixed(1) : analytics?.attendanceRate || 0}%</div>
-          <div className="text-white">Avg Attendance</div>
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">{(analytics?.attendanceRate || 0).toFixed ? (analytics?.attendanceRate || 0).toFixed(1) : analytics?.attendanceRate || 0}%</div>
+          <div className="text-[rgb(51,116,253)]">Avg Attendance</div>
         </div>
         <div className="glass-effect rounded-xl shadow-lg p-6">
-          <div className="text-2xl font-bold text-orange-200">{analytics?.riskCounts?.medium || 0}</div>
-          <div className="text-white">Medium Risk</div>
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">{analytics?.riskCounts?.medium || 0}</div>
+          <div className="text-[rgb(51,116,253)]">Medium Risk</div>
         </div>
         <div className="glass-effect rounded-xl shadow-lg p-6">
-          <div className="text-2xl font-bold text-red-200">{analytics?.riskCounts?.high || 0}</div>
-          <div className="text-white">High Risk</div>
+          <div className="text-2xl font-bold text-[rgb(51,116,253)]">{analytics?.riskCounts?.high || 0}</div>
+          <div className="text-[rgb(51,116,253)]">High Risk</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weekly Trends */}
         <div className="glass-effect rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-white mb-4">Weekly Trends</h2>
+          <h2 className="text-xl font-bold text-[rgb(51,116,253)] mb-4">Weekly Trends</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={analytics?.weeklyTrends || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff40" />
-              <XAxis dataKey="week" stroke="#ffffff" />
-              <YAxis stroke="#ffffff" />
+              <XAxis dataKey="week" stroke="rgb(51,116,253)" />
+              <YAxis stroke="rgb(51,116,253)" />
               <Tooltip 
                 contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '8px', color: '#ffffff' }}
                 labelStyle={{ color: '#ffffff' }}
@@ -270,6 +297,13 @@ const MentorDashboard = () => {
             )}
           </div>
         </div>
+      )}
+        </>
+      )}
+
+      {/* Students Management Tab */}
+      {activeTab === 'students' && (
+        <StudentsOverview />
       )}
     </div>
   );

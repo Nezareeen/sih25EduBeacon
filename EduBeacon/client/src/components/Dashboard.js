@@ -27,16 +27,16 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-white">EduBeacon</h1>
-              <span className="ml-4 px-3 py-1 bg-white/20 text-white text-sm font-medium rounded-full">
+              <h1 className="text-xl font-bold text-[rgb(51,116,253)]">EduBeacon</h1>
+              <span className="ml-4 px-3 py-1 bg-white/20 text-[rgb(51,116,253)] text-sm font-medium rounded-full">
                 {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
               </span>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-white/80">Welcome, {user.name}</span>
+              <span className="text-[rgb(51,116,253)]">Welcome, {user.name}</span>
               <button
                 onClick={logout}
-                className="text-white hover:text-white/80 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-[rgb(51,116,253)] hover:text-[rgb(51,116,253)]/80 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Logout
               </button>
