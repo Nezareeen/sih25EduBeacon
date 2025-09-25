@@ -57,7 +57,7 @@ const Home = () => {
           <div className="card text-[rgb(51,116,253)]">
             <div className="text-4xl mb-4">🤖</div>
             <h3 className="text-2xl font-bold mb-4 text-[rgb(51,116,253)]">AI Counseling</h3>
-            <p className="text-[rgb(51,116,253)] leading-relaxed">
+            <p className="text-white leading-relaxed">
               Intelligent chatbot provides 24/7 support and guidance to students 
               when they need it most.
             </p>
@@ -65,7 +65,7 @@ const Home = () => {
           <div className="card text-[rgb(51,116,253)]">
             <div className="text-4xl mb-4">📊</div>
             <h3 className="text-2xl font-bold mb-4 text-[rgb(51,116,253)]">Analytics Dashboard</h3>
-            <p className="text-[rgb(51,116,253)] leading-relaxed">
+            <p className="text-white leading-relaxed">
               Real-time insights and predictive analytics help identify at-risk 
               students before it's too late.
             </p>
@@ -73,7 +73,7 @@ const Home = () => {
           <div className="card text-[rgb(51,116,253)]">
             <div className="text-4xl mb-4">👥</div>
             <h3 className="text-2xl font-bold mb-4 text-[rgb(51,116,253)]">Mentor Support</h3>
-            <p className="text-[rgb(51,116,253)] leading-relaxed">
+            <p className="text-white leading-relaxed">
               Connect students with mentors and provide tools for effective 
               academic and personal guidance.
             </p>

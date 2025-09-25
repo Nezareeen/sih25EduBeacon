@@ -31,11 +31,11 @@
   }
   
   .btn-primary:hover {
-    background: linear-gradient(135deg, rgba(51, 116, 253, 0.4) 0%, rgba(51, 116, 253, 0.3) 50%, rgba(51, 116, 253, 0.5) 100%);
+    background: linear-gradient(135deg, rgba(51, 116, 253, 0.4) 0%, rgba(51, 116, 253, 0.4) 50%, rgb(51, 116, 253, 0.4) 100%);
     border-color: rgba(51, 116, 253, 0.4);
     box-shadow: 0 12px 40px rgba(51, 116, 253, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
-    color: rgb(51, 116, 253);
+    color: rgb(255, 255, 255);
   }
   
   .btn-secondary {
@@ -56,7 +56,7 @@
     border-color: rgba(51, 116, 253, 0.3);
     box-shadow: 0 12px 40px rgba(51, 116, 253, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
     transform: translateY(-2px);
-    color: rgb(51, 116, 253);
+    color: rgb(255, 255, 255);
   }
   
   .card {
