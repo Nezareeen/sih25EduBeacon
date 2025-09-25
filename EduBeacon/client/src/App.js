@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 // Import the new SmoothWavyCanvas component
-import SmoothWavyCanvas from './components/SmoothWavyCanvas'; 
+
 
 // Components
 import Home from './components/Home';
@@ -38,7 +38,7 @@ function App() {
     <AuthProvider>
       <Router>
         {/* Replace the old background with the new wavy canvas */}
-        <SmoothWavyCanvas />
+        
         <div className="App relative z-10">
           <Routes>
             <Route path="/" element={<Home />} />
